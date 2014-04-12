@@ -157,7 +157,7 @@ def calculateDifference (marketCapital, stocks):
 	for key, val in marketCapital.items():
 		if key == startTime:
 			prev = val
-			marketDiff[key] = 1
+			#marketDiff[key] = 1
 		else:
 			marketDiff[key] = (val - prev)/prev
 			prev = val
@@ -168,7 +168,7 @@ def calculateDifference (marketCapital, stocks):
 		for minute, val in minutes.items():
 			if minute == startTime:
 				prev = val
-				tempMin[minute] = 1
+				#tempMin[minute] = 1
 			else:
 				tempMin[minute] = (val - prev)/prev
 				prev = val
@@ -177,6 +177,19 @@ def calculateDifference (marketCapital, stocks):
 	return marketDiff, stocksDiff	
 				
 
+
+
+'''This method calculates the trend of the stocks and market by normalizing it with the first value'''
+def trend():
+	marketVol = {}
+        normMarketVol = {}
+        reader = csv.reader( open (ofile, 'rb'))
+        for row in reader:
+                minute = row[1]
+                if minute in marketVol.keys():
+                        marketVol[minute] += float(row[5])*float(row[6])
+                else:
+                        marketVol[minute] = float(row[5])*float(row[6])
 
 
 

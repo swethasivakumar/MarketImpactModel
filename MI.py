@@ -13,11 +13,21 @@ import glob
 import os
 import re
 import collections
-
+import pickle
 
 dayFile = "day2.csv"
 startTime = 1000
 threshold = 10
+pickleFile = "dayfile.p"
+
+def serialize (dayFile):
+	lines = []
+	reader = csv.reader( open (dayFile, 'rb'))
+	for row in reader:
+		lines.append([row])
+	pickle.dump( lines, open( pickleFile, "wb" ) )
+
+
 
 def getChangeInMarket(dayFile):
         marketChange = {}
@@ -84,30 +94,35 @@ def getChangeInStocks(dayFile):
 
 
 
-
+'''
 def getTrend (marketChange, stockChange):
+	orders = []
 	impTimes = []
 	impStocks = []
 	for stock, minuteChange in stockChange.items():
 		for time, stockVal in minuteChange.items():
 			marketVal = marketChange[time]
 			if float(abs(stockVal-marketVal)) >= threshold:
+				if float(stockVal - marketVal)>0:
+					orders.append([minute, stock, 
 				impTimes.append(int(time))
 				impStocks.append(stock)		
 
 	return impTimes, impStocks
-	
+'''	
 	
 
 
 if __name__ == '__main__':
+	serialize(dayFile)
+	'''
 	marketChange = getChangeInMarket(dayFile)
-	#print marketChange				
+	print marketChange				
 	stockChange = getChangeInStocks(dayFile)
 	
 	impTimes, impStocks = getTrend (marketChange, stockChange)
-	print impTimes, impStocks
-	
+	#print impTimes, impStocks
+	'''
 
 
 
