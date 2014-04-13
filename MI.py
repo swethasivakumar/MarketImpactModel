@@ -19,33 +19,40 @@ dayFile = "day2.csv"
 startTime = 1000
 threshold = 10
 pickleFile = "dayfile.p"
+dayData = []
+
 
 def serialize (dayFile):
 	lines = []
 	reader = csv.reader( open (dayFile, 'rb'))
 	for row in reader:
-		lines.append([row])
+		lines.append(row)
 	pickle.dump( lines, open( pickleFile, "wb" ) )
 
 
+def deserialize (pickleFile):
+	dayData = pickle.load( open( pickleFile, "rb" ) )
+	return dayData
 
-def getChangeInMarket(dayFile):
+
+def getChangeInMarket(dayData):
         marketChange = {}
 	marketDollarVol = {}
-        reader = csv.reader( open (dayFile, 'rb'))
-        for row in reader:
+        for row in dayData:
+		date = str(row[0])
                 minute = int(row[1])
-                if minute in marketDollarVol.keys():
-                        marketDollarVol[minute] += float(row[5])*float(row[6])
+		key = (date, minute)
+                if key in marketDollarVol.keys():
+                        marketDollarVol[key] += float(row[5])*float(row[6])
                 else:
-                        marketDollarVol[minute] = float(row[5])*float(row[6])
+                        marketDollarVol[key] = float(row[5])*float(row[6])
 
         #sort the market capital and take percentage change compared to the previous day
         sortedDollarVol = collections.OrderedDict(sorted(marketDollarVol.items()))
 	prev = 1
 	#The value for 1000 gets added to the dictionary too but it should not be used
         for key,val in sortedDollarVol.items():
-		if key == startTime:
+		if key[1] == startTime:
 			prev = val
 			marketChange[key] = 0.0
 		else:
@@ -56,24 +63,25 @@ def getChangeInMarket(dayFile):
 
 
 
-def getChangeInStocks(dayFile):
+def getChangeInStocks(dayData):
 	stocks = {}
 	stockChange = {}
 	minuteDollarVol = {}
-	reader = csv.reader( open (dayFile, 'rb'))
-	for row in reader:
+	for row in dayData:
                 stock = row[10]
                 minute = int(row[1])
+		date = str(row[0])
+		key = (date, minute)
                 dollarVol = float(row[5])*float(row[6])
 		if stock in stocks.keys():
                         tempMinutes = stocks[stock]
-                        if minute in tempMinutes.keys():
-				tempMinutes[minute] += dollarVol
+                        if key in tempMinutes.keys():
+				tempMinutes[key] += dollarVol
 			else:
-				tempMinutes[minute] = dollarVol
+				tempMinutes[key] = dollarVol
 		else:
 			tempMinutes = {}
-                        tempMinutes[minute] = dollarVol
+                        tempMinutes[key] = dollarVol
 			minutes = collections.OrderedDict(sorted(tempMinutes.items()))
                         stocks[stock] = minutes
 	
@@ -82,7 +90,7 @@ def getChangeInStocks(dayFile):
 		change = {}
 		prev = 1
 		for key,val in minutes.items():
-                	if key == startTime:
+                	if key[1] == startTime:
                         	prev = val
                         	change[key] = 0.0
                 	else:
@@ -94,7 +102,7 @@ def getChangeInStocks(dayFile):
 
 
 
-'''
+
 def getTrend (marketChange, stockChange):
 	orders = []
 	impTimes = []
@@ -104,17 +112,18 @@ def getTrend (marketChange, stockChange):
 			marketVal = marketChange[time]
 			if float(abs(stockVal-marketVal)) >= threshold:
 				if float(stockVal - marketVal)>0:
-					orders.append([minute, stock, 
+					orders.append([key[0], key[1],  
 				impTimes.append(int(time))
 				impStocks.append(stock)		
 
 	return impTimes, impStocks
-'''	
+
 	
 
 
 if __name__ == '__main__':
-	serialize(dayFile)
+	#serialize(dayFile)
+	dayData = deserialize(pickleFile)
 	'''
 	marketChange = getChangeInMarket(dayFile)
 	print marketChange				
@@ -128,4 +137,4 @@ if __name__ == '__main__':
 
 
 
-
+	
